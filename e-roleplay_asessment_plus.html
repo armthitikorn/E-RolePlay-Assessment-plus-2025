@@ -1,0 +1,659 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title>แบบทดสอบ Roleplay | ใบประกาศนียบัตร</title>
+    
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet"/>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css" rel="stylesheet"/>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" integrity="sha512-SnH5WK+bZxgPHs44uWIX+LLJAJ9/2PkPKZ5QiAj6Ta86w+fsb2TkcmfRyVX3pBnMFcV7oQPJkl9QevSCWr3W6A==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+    
+    <style>
+        /* 1. สไตล์หลักจาก Code M: พื้นหลัง Animation และ Card Structure */
+        body {
+            margin: 0;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(-45deg, #74ebd5, #9face6, #a18cd1, #fbc2eb);
+            background-size: 400% 400%;
+            animation: gradientBG 15s ease infinite;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px 0;
+        }
+        @keyframes gradientBG {
+            0% { background-position: 0% 50%;
+            }
+            50% { background-position: 100% 50%;
+            }
+            100% { background-position: 0% 50%;
+            }
+        }
+        .card-container {
+            max-width: 650px;
+            width: 95%;
+            transition: all 0.5s ease-in-out;
+            margin: 20px auto;
+        }
+        .card {
+            animation: fadeIn 1s ease-in-out;
+            border-radius: 1.5rem; 
+            border: none;
+            overflow: hidden;
+            background: rgba(255, 255, 255, 0.98); 
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
+        }
+        @keyframes fadeIn {
+            from { opacity: 0;
+            transform: translateY(40px); }
+            to { opacity: 1; transform: translateY(0);
+            }
+        }
+
+        /* 2. Animation ปุ่ม (Code M) */
+        .btn-animated {
+            transition: transform 0.2s ease, box-shadow 0.2s ease, background-color 0.3s;
+            font-weight: 600;
+        }
+        .btn-animated:hover {
+            transform: scale(1.03); 
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+        }
+        .btn-animated:disabled {
+            cursor: not-allowed;
+            transform: none;
+        }
+        
+        /* 3. Certificate Page (Code M) */
+        #certificatePage {
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: linear-gradient(135deg, #fdfbfb 0%, #ebedee 100%);
+            z-index: 3000; display: flex; align-items: center;
+            justify-content: center;
+            opacity: 0; visibility: hidden; transition: opacity 1s ease-in-out, visibility 1s;
+        }
+        .certificate-content {
+            background-color: white;
+            padding: 50px; border: 20px solid #FFD700;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3); text-align: center; max-width: 90%;
+            transform: scale(0.8);
+            transition: transform 1s cubic-bezier(0.68, -0.55, 0.27, 1.55);
+            font-family: 'Times New Roman', serif;
+        }
+        .certificate-content h1 { 
+            color: #8A2BE2; font-size: 3rem; margin-bottom: 20px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.1); 
+        }
+        .certificate-content strong { 
+            font-size: 2rem; display: block;
+            margin: 15px 0; color: #007bff; 
+        }
+        #certificatePage.show { 
+            opacity: 1; visibility: visible;
+        }
+        #certificatePage.show .certificate-content { 
+            transform: scale(1);
+        }
+
+        /* ⚡️ การแก้ไข: Responsive สำหรับหน้าใบประกาศฯ บนมือถือ */
+        @media (max-width: 600px) {
+            .certificate-content {
+                padding: 20px; 
+                border: 10px solid #FFD700; 
+            }
+            .certificate-content h1 {
+                font-size: 2rem; 
+                margin-bottom: 10px;
+            }
+            .certificate-content strong {
+                font-size: 1.5rem; 
+                margin: 10px 0;
+            }
+            .certificate-content p {
+                font-size: 0.9rem; 
+            }
+        }
+        
+        /* 4. Loading/Message Overlays (Code D) */
+        .message-box { 
+            position: fixed;
+            top: 50%; left: 50%; transform: translate(-50%, -50%); background-color: #d1e7dd; color: #0f5132; border: 1px solid #badbcc; padding: 15px; border-radius: 8px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); display: none; z-index: 5000;
+        }
+        .loading-overlay { 
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(255, 255, 255, 0.9); display: none; justify-content: center; align-items: center; z-index: 4000; flex-direction: column;
+        }
+        .loading-spinner { 
+            border: 4px solid #f3f3f3; border-top: 4px solid #8A2BE2; border-radius: 50%;
+            width: 40px; height: 40px; animation: spin 1s linear infinite; 
+        }
+        @keyframes spin { 
+            0% { transform: rotate(0deg);
+            } 100% { transform: rotate(360deg); } 
+        }
+        .upload-progress { 
+            width: 100%; max-width: 300px;
+            height: 25px; background-color: #e9ecef; border-radius: 5px; margin-top: 15px; overflow: hidden;
+        }
+        .progress-bar { 
+            height: 100%; background-color: #007bff; width: 0%; transition: width 0.4s ease;
+        }
+        .progress-bar-done { 
+            background-color: #28a745 !important;
+        } 
+        
+    </style>
+</head>
+<body>
+    <div id="messageBox" class="message-box"></div>
+    <div id="loadingOverlay" class="loading-overlay">
+        <div class="loading-spinner"></div>
+        <p id="loadingText" class="mt-3">กำลังอัปโหลด... กรุณารอสักครู่</p>
+        <div class="upload-progress">
+            <div class="progress-bar" id="uploadProgressBar"></div>
+        </div>
+    </div>
+
+    <div class="container card-container" id="quizContainer">
+        <div class="card shadow-lg p-4 mx-auto">
+            <h3 class="text-center mb-4" style="color: #8A2BE2;"><i class="bi bi-person-rolodex me-2"></i> แบบทดสอบ Roleplay</h3>
+            
+            <div id="uuidDisplayBox" class="text-center mb-3 p-2 rounded-3 bg-light" style="border: 1px dashed #a18cd1; display: none;">
+                <span class="fw-bold">รหัสผู้ใช้งาน (UUID):</span> <span id="userNameDisplay">กำลังสร้างรหัส...</span>
+            </div>
+
+            <div class="mb-4">
+                <label for="inputUserName" class="form-label fw-bold"><i class="bi bi-person-badge me-1"></i> ชื่อสำหรับใบประกาศนียบัตร:</label>
+                <input type="text" class="form-control" id="inputUserName" placeholder="กรอกชื่อ-นามสกุลของคุณ (ไม่บังคับ)" required>
+            </div>
+           
+            <div class="d-flex justify-content-center gap-2 mb-3">
+                <button class="btn btn-outline-primary btn-sm btn-animated active-part active" data-part="part1" onclick="loadPart('part1')">Part 1</button>
+                <button class="btn btn-outline-primary btn-sm btn-animated" data-part="part2" onclick="loadPart('part2')">Part 2</button>
+                <button class="btn btn-outline-primary btn-sm btn-animated" data-part="part3" onclick="loadPart('part3')">Part 3</button>
+            </div>
+            
+            <div id="questionBox" class="mb-3 p-3 border rounded-3 bg-light">
+                <p id="questionText" class="fs-5 text-center text-dark fw-bold m-0"></p>
+                <p class="text-muted text-center mt-2 mb-0" id="progressInfo"></p>
+            </div>
+
+            <div class="d-flex justify-content-center gap-3 mb-3">
+           
+                <button class="btn btn-danger btn-animated" id="startRecord"><i class="bi bi-mic-fill"></i> เริ่มบันทึก</button>
+                <button class="btn btn-warning text-dark btn-animated" id="stopRecord" disabled><i class="bi bi-stop-circle"></i> หยุดบันทึก</button>
+                <button class="btn btn-success btn-animated" id="saveRecord" disabled><i class="bi bi-check-lg"></i> บันทึก & Next</button>
+            </div>
+            <div class="mb-3 text-center">
+           
+                <audio id="audioPreview" controls style="display:none; width: 100%;"></audio>
+                <p id="recordStatus" class="text-muted mt-2" style="font-size: 0.9em;">สถานะ: พร้อมบันทึก</p>
+            </div>
+
+            <div class="d-flex justify-content-between mb-3">
+                <button class="btn btn-secondary btn-animated" onclick="prevQuestion()" id="prevBtn" disabled><i class="bi bi-arrow-left"></i> ย้อนกลับ</button>
+                
+                <button class="btn btn-primary btn-animated" onclick="nextQuestion()" id="nextBtn"><i class="bi bi-arrow-right"></i> ถัดไป</button>
+            </div>
+
+            <div class="mb-3">
+                <div class="progress" style="height: 25px;">
+                    <div class="progress-bar" id="progressBar" role="progressbar" style="width: 0%;" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100">0%</div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div id="certificatePage">
+        <div class="certificate-content">
+            <i class="bi bi-patch-check-fill text-warning" style="font-size: 4rem;"></i>
+            <h1 class="mt-3">ใบประกาศนียบัตร</h1>
+            <p>มอบให้แด่</p>
+        
+            <strong id="certificateUserName">ผู้พิชิตแบบทดสอบ Roleplay</strong>
+            <p>ที่ได้ผ่านการทดสอบ Roleplay ครบทุกส่วน<br>ด้วยความมุ่งมั่นและทักษะที่ยอดเยี่ยม</p>
+            <p class="mt-4 text-muted">ขอแสดงความยินดีในความสำเร็จนี้</p>
+            <button id="resetQuizBtn" class="btn btn-primary btn-animated mt-4">เริ่มทำแบบทดสอบใหม่</button>
+        </div>
+    </div>
+
+   <script type="module">
+        // 🚨 หมายเหตุ: หากเปิดไฟล์นี้โดยตรง (file:///) อาจพบข้อผิดพลาด 'Unexpected token import' 
+        // กรุณาเปิดผ่าน Web Server (เช่น GitHub Pages, Live Server ใน VS Code)
+
+        // --- Supabase Imports & Config (จาก Code D) ---
+        import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm';
+        import { v4 as uuidv4 } from 'https://cdn.jsdelivr.net/npm/uuid@8.3.2/dist/esm-browser/index.js';
+
+        // **ตั้งค่า Supabase ของคุณ**
+        const supabaseUrl = 'https://wzwyotzzxycqfwercakh.supabase.co';
+        const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Ind6d3lvdHp6eHljcWZ3ZXJjYWtoIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTcwNTg3MTMsImV4cCI6MjA3MjYzNDcxM30.lgiAf9oBUqsaWGb3u_80wuoKAODQHE_lIBxpGumhrno'; 
+        const supabase = createClient(supabaseUrl, supabaseKey);
+
+        // --- Global Variables (ผสม Code M & D) ---
+        let audioBlobs = { part1: {}, part2: {}, part3: {} };
+        let mediaRecorder;
+        let audioStream;
+        let currentAudioChunk = [];
+        let currentUserId = null; 
+        const USER_ID_KEY = 'roleplay_user_id'; 
+        const USER_NAME_KEY = 'roleplay_user_name'; // ⚡️ Key สำหรับบันทึกชื่อ
+
+        let currentPart = 'part1'; 
+        let shuffledQuestions = [];
+        let currentIndex = 0;
+        const totalQuestionsPerPart = 10;
+        
+        // ... ข้อมูลคำถาม questions เดิม ...
+        const questions = {
+            part1: [
+                "ขอโทษครับ/ค่ะ ไม่สนใจต้นสาย", "ไม่สะดวกคุยตอนนี้ครับ/ค่ะ", "ไม่รับสายขายของครับ/ค่ะ", "ไม่สนใจประกันครับ/ค่ะ",
+                "มีประกันอยู่แล้วครับ/ค่ะ", "ไม่อยากเสียเวลา", "ไม่เคยซื้อของทางโทรศัพท์", "ไม่ไว้ใจการขายทางโทรศัพท์",
+                "ไม่อยากให้ข้อมูลส่วนตัว", "ไม่สนใจเรื่องสุขภาพตอนนี้", "ไม่สะดวกทำงานอยู่", "ไม่สะดวกขับรถอยู่",
+                "ไม่สะดวกคุยช่วงเช้า", "ไม่สะดวกโทรมาบ่อยมาก", "ไม่สะดวก ไม่ฟัง", "ประกันมีเยอะแล้ว",
+                "ใครให้เบอร์โทรมาติดต่อ", "ยกเลิกบัตรเครดิตไปแล้ว", "ไม่ชอบประกันชีวิต", "ยกเลิกไปหมดแล้ว", "มิจฉาชีพหรือป่าว"
+            ],
+            part2: [
+                "ประกันสุขภาพครอบคลุมโรคเรื้อรังหรือไม่?", "ถ้าเข้าโรงพยาบาลเอกชนจะจ่ายเต็มไหม?", "มีค่าห้องสูงสุดเท่าไหร่?", "ต้องสำรองจ่ายก่อนหรือไม่?",
+                "มีเงื่อนไขการเคลมอะไรบ้าง?", "ถ้าเป็นโรคที่มีมาก่อนจะคุ้มครองไหม?", "มีระยะเวลารอคอยหรือไม่?", "เบี้ยประกันปรับขึ้นทุกปีหรือไม่?",
+                "สามารถใช้ร่วมกับสิทธิ์ประกันสังคมได้ไหม?", "มีวงเงินคุ้มครองสูงสุดเท่าไหร่?", "ถ้าไม่ได้ใช้บริการเลย จะได้เงินคืนไหม?", "มีบริการเคลมออนไลน์หรือไม่?",
+                "สามารถเลือกโรงพยาบาลเองได้ไหม?", "มีคุ้มครองกรณีอุบัติเหตุหรือไม่?", "ถ้าเปลี่ยนงานจะยังใช้ประกันได้ไหม?", "มีคุ้มครองกรณีโรคร้ายแรงหรือไม่?",
+                "สามารถซื้อให้ครอบครัวได้ไหม?", "มีบริการช่วยเหลือฉุกเฉินหรือไม่?", "มีเงื่อนไขการยกเลิกกรมธรรมณ์อย่างไร?", "สามารถจ่ายเบี้ยผ่านบัตรเครดิตได้ไหม?",
+                "ข้อมูลเยอะจัง ส่งเอกสารให้ดูก่อนได้มัย", "เหมือนที่มีอยู่ เหมือนๆกันเลย", "ความคุ้มครองน้อยจัง ไม่ตอบโจทย์", "ค่าเบี้ยแพงจัง",
+                "ไม่อยากได้แบบนี้ อยากได้แบบอื่น", "ขอปรึกษาพ่อ แม่ แฟน ดูก่อน", "ช่วงนี้ค่าใช้จ่ายเยอะ", "ขอคิดดูก่อน",
+                "กลัวซ้ำซ้อน เบิกเคลมไม่ได้", "มีเยอะแล้ว แค่ฟังๆดูก่อน", "ทำแล้วติดต่อยาก ไม่รู้จะปรึกษาใครเวลามีปัญหาในกรมธรรมณ์",
+                "ที่พูดมาได้จริงหรอ", "ไม่มั่นใจในบริษัท ไม่ชอบซื้อผ่านโทรศัพท์", "ได้กำไรน้อย ขาดทุน กว่าจะได้จุดคุ้มทุน", "ซื้อไปก็ไม่ได้ใช้",
+                "เดียวๆ ต้องทำงานต่อก่อน", "ฟังแล้วไม่น่าสนใจเลย", "มีประกันสังคม ประกันกลุ่มบริษัทอยู่แล้ว", "หักลดหย่อนภาษีเต็ม",
+                "ที่บ้านเป็นตัวแทน", "ซื้อไว้หมดทุกตัวแล้ว"
+            ],
+            part3: [
+                "คิดว่าแพงเกินไปครับ/ค่ะ", "ขอคิดดูก่อนครับ/ค่ะ", "ต้องปรึกษาครอบครัวก่อนครับ/ค่ะ", "ยังไม่พร้อมตัดสินใจครับ/ค่ะ",
+                "ไม่มั่นใจในบริษัทครับ/ค่ะ", "กลัวถูกหลอกครับ/ค่ะ", "มีประกันอยู่แล้วครับ/ค่ะ", "ไม่เห็นความจำเป็นครับ/ค่ะ",
+                "ไม่อยากผูกมัดระยะยาวครับ/ค่ะ", "ไม่มั่นใจว่าจะได้ใช้ครับ/ค่ะ", "ยังๆ ยังไม่ทำนะ", "ขอดูวงเงินบัตรเครดิตก่อน รอบตัดบัตรเครดิตไม่สะดวก",
+                "ต้องทำเลยหรอ", "คิดดูก่อนสักวัน 2วันได้มัย", "ขอเปรียบเทียบกับกรมธรรมณ์เก่าก่อนนะ", "ยังไม่ให้คำตอบวันนี้",
+                "โยนให้คนอื่นตัดสิ้นใจแทน เช่น แฟน", 
+                "รอเงินเดือนออกก่อน"
+            ]
+        };
+        let partCompletion = { part1: false, part2: false, part3: false };
+        // --- DOM Elements ---
+        const userNameDisplay = document.getElementById("userNameDisplay");
+        const loadingOverlay = document.getElementById("loadingOverlay");
+        const loadingText = document.getElementById("loadingText");
+        const uploadProgressBar = document.getElementById("uploadProgressBar"); 
+        const messageBox = document.getElementById('messageBox');
+        const questionText = document.getElementById('questionText');
+        const progressBar = document.getElementById('progressBar');
+        const progressInfo = document.getElementById('progressInfo');
+        const prevBtn = document.getElementById('prevBtn');
+        const nextBtn = document.getElementById('nextBtn');
+        const startRecordBtn = document.getElementById('startRecord');
+        const stopRecordBtn = document.getElementById('stopRecord');
+        const saveRecordBtn = document.getElementById('saveRecord');
+        const audioPreview = document.getElementById('audioPreview');
+        const recordStatus = document.getElementById('recordStatus');
+        
+        // ⚡️ DOM Element สำหรับช่องกรอกชื่อ
+        const inputUserName = document.getElementById('inputUserName'); 
+        
+        const certificateUserName = document.getElementById('certificateUserName');
+        const resetQuizBtn = document.getElementById('resetQuizBtn');
+
+
+        // --- Utility Functions ---
+
+        function showMessage(text, type = 'info') {
+            // Logic from Code D
+            messageBox.textContent = text;
+            messageBox.style.display = 'block';
+            if (type === 'error') {
+                messageBox.style.backgroundColor = '#f8d7da';
+                messageBox.style.color = '#721c24';
+            } else {
+                messageBox.style.backgroundColor = '#d1e7dd';
+                messageBox.style.color = '#0f5132';
+            }
+            setTimeout(() => { messageBox.style.display = 'none'; }, 3000);
+        }
+
+        // Fisher-Yates Shuffle Algorithm (Code M)
+        function shuffle(array) {
+            let copy = [...array];
+            while (copy.length > totalQuestionsPerPart) {
+                copy.splice(Math.floor(Math.random() * copy.length), 1);
+            }
+            return copy;
+        }
+
+        // --- Core Quiz Logic (Code M Style) ---
+
+        function loadPart(part) {
+            if (mediaRecorder && mediaRecorder.state !== "inactive") {
+                showMessage("กรุณากดหยุดบันทึกเสียงก่อนเปลี่ยน Part", "error");
+                return;
+            }
+            currentPart = part;
+            shuffledQuestions = shuffle(questions[part]);
+            currentIndex = 0;
+            showQuestion();
+            
+            // อัพเดท Active State ของปุ่ม
+            document.querySelectorAll('.btn-outline-primary.btn-sm').forEach(btn => {
+                btn.classList.remove('active');
+                if (btn.getAttribute('data-part') === part) {
+                    btn.classList.add('active');
+                }
+            });
+
+            // Reset UI State
+            resetRecordingControls();
+            checkQuestionRecorded();
+        }
+
+        function showQuestion() {
+            // Animation การเปลี่ยนคำถาม (Code M)
+            questionText.parentElement.style.opacity = 0;
+            setTimeout(() => { 
+                questionText.textContent = `[Part ${currentPart.slice(-1)} - ข้อที่ ${currentIndex + 1}/${shuffledQuestions.length}] ${shuffledQuestions[currentIndex]}`;
+                questionText.parentElement.style.opacity = 1;
+
+                prevBtn.disabled = currentIndex === 0;
+
+                // ตรวจสอบว่าเป็นคำถามสุดท้ายของ Part หรือไม่ (Code M)
+                if (currentIndex === shuffledQuestions.length - 1) {
+                    nextBtn.innerHTML = '<i class="bi bi-check-circle-fill"></i> เสร็จสิ้น Part';
+                    nextBtn.classList.remove('btn-primary');
+                    nextBtn.classList.add('btn-success');
+                } else {
+                    nextBtn.innerHTML = '<i class="bi bi-arrow-right"></i> ถัดไป';
+                    nextBtn.classList.remove('btn-success');
+                    nextBtn.classList.add('btn-primary');
+                }
+                nextBtn.disabled = false; 
+                
+                // อัพเดท Progress Bar (Code M)
+                const progressValue = Math.round(((currentIndex + 1) / shuffledQuestions.length) * 100);
+                progressBar.style.width = progressValue + '%';
+                progressBar.setAttribute('aria-valuenow', progressValue);
+                progressBar.textContent = progressValue + '%';
+                progressInfo.textContent = `คำถามที่ ${currentIndex + 1} จาก ${shuffledQuestions.length} ข้อใน Part นี้`;
+                progressBar.classList.remove('progress-bar-done');
+                // ตรวจสอบสถานะการบันทึกสำหรับคำถามใหม่
+                resetRecordingControls();
+                checkQuestionRecorded();
+            }, 200); 
+        }
+
+        async function nextQuestion() {
+            // บังคับให้บันทึกเสียงก่อนไปต่อ
+            if (!audioBlobs[currentPart][currentIndex]) {
+                showMessage("กรุณาบันทึกไฟล์เสียงสำหรับคำถามนี้ก่อน", "error");
+                return;
+            }
+            
+            if (currentIndex < shuffledQuestions.length - 1) {
+                currentIndex++;
+                showQuestion();
+            } else if (currentIndex === shuffledQuestions.length - 1) {
+                // ถ้าเป็นคำถามสุดท้าย ให้เริ่มกระบวนการอัปโหลด (Code D Logic)
+                const success = await uploadData(parseInt(currentPart.slice(-1)));
+                if (success) {
+                    partCompletion[currentPart] = true;
+                    // Animation Progress Bar เมื่อเสร็จสิ้น (Code M)
+                    progressBar.classList.add('progress-bar-done');
+                    progressBar.textContent = '100% - Part เสร็จสิ้น!';
+                    
+                    // ตรวจสอบว่าทำครบทุก Part หรือยัง
+                    checkCompletion();
+                    nextBtn.disabled = true;
+                    nextBtn.innerHTML = '<i class="bi bi-check-circle-fill"></i> Part เสร็จสิ้น!';
+                }
+            }
+        }
+
+        function prevQuestion() {
+            if (currentIndex > 0) {
+                currentIndex--;
+                showQuestion();
+                nextBtn.disabled = false; 
+            }
+        }
+
+        // --- Recording and Upload Logic (Code D Core) ---
+
+        function resetRecordingControls() {
+            startRecordBtn.disabled = false;
+            stopRecordBtn.disabled = true;
+            saveRecordBtn.disabled = true;
+            audioPreview.style.display = 'none';
+            audioPreview.src = '';
+            recordStatus.textContent = 'สถานะ: พร้อมบันทึก';
+            startRecordBtn.innerHTML = '<i class="bi bi-mic-fill"></i> เริ่มบันทึก';
+            startRecordBtn.classList.remove('btn-secondary');
+            startRecordBtn.classList.add('btn-danger');
+            currentAudioChunk = [];
+        }
+
+        function checkQuestionRecorded() {
+            if (audioBlobs[currentPart][currentIndex]) {
+                const blob = audioBlobs[currentPart][currentIndex];
+                audioPreview.src = URL.createObjectURL(blob);
+                audioPreview.style.display = 'block';
+                const fileSizeKB = (blob.size / 1024).toFixed(2);
+                recordStatus.innerHTML = `<i class="bi bi-check-circle-fill text-success me-1"></i> บันทึกแล้ว: ${fileSizeKB} KB.`;
+                saveRecordBtn.textContent = 'แก้ไข & Next';
+                saveRecordBtn.disabled = false;
+                nextBtn.disabled = false; // สามารถไปต่อได้ทันทีถ้ามีบันทึกแล้ว
+            } else {
+                saveRecordBtn.textContent = 'บันทึก & Next';
+                nextBtn.disabled = true; // ต้องบันทึกก่อนถึงจะไปต่อได้
+            }
+        }
+
+        async function startRecording() {
+            if (mediaRecorder && mediaRecorder.state !== "inactive") {
+                showMessage("กำลังบันทึกเสียงอยู่ กรุณากดหยุดก่อน", "error");
+                return;
+            }
+            try {
+                audioStream = await navigator.mediaDevices.getUserMedia({ audio: true });
+                const options = { mimeType: 'audio/webm' };
+                mediaRecorder = new MediaRecorder(audioStream, options);
+                currentAudioChunk = [];
+                mediaRecorder.ondataavailable = e => { if (e.data.size > 0) currentAudioChunk.push(e.data); };
+                mediaRecorder.onstart = () => {
+                    startRecordBtn.disabled = true;
+                    stopRecordBtn.disabled = false;
+                    saveRecordBtn.disabled = true;
+                    audioPreview.style.display = 'none';
+                    recordStatus.textContent = 'สถานะ: กำลังอัดเสียง...';
+                    startRecordBtn.innerHTML = '<i class="bi bi-mic-fill"></i> กำลังบันทึก...';
+                    startRecordBtn.classList.remove('btn-danger');
+                    startRecordBtn.classList.add('btn-secondary');
+                    showMessage("กำลังอัดเสียง...", "info");
+                }
+                
+                mediaRecorder.start();
+            } catch (err) {
+                console.error("Media recording error:", err);
+                showMessage("ไม่สามารถเข้าถึงไมโครโฟนได้ กรุณาตรวจสอบสิทธิ์ (ต้องเปิดผ่าน HTTPS หรือ localhost)", "error");
+            }
+        }
+
+        function stopRecording() {
+            if (mediaRecorder && mediaRecorder.state !== "inactive") {
+                mediaRecorder.stop();
+                audioStream.getTracks().forEach(track => track.stop());
+            }
+            
+            // รอให้ onstop ทำงานก่อน
+            mediaRecorder.onstop = () => {
+                const blob = new Blob(currentAudioChunk, { type: 'audio/webm' });
+                const url = URL.createObjectURL(blob);
+                audioPreview.src = url;
+                audioPreview.style.display = "block";
+                const fileSizeKB = (blob.size / 1024).toFixed(2);
+                recordStatus.innerHTML = `สถานะ: บันทึกชั่วคราว (${fileSizeKB} KB)`;
+                
+                startRecordBtn.disabled = false;
+                stopRecordBtn.disabled = true;
+                saveRecordBtn.disabled = false;
+                startRecordBtn.innerHTML = '<i class="bi bi-mic-fill"></i> เริ่มบันทึกใหม่';
+                startRecordBtn.classList.remove('btn-secondary');
+                startRecordBtn.classList.add('btn-danger');
+
+                // Save to audioBlobs immediately upon successful stop
+                audioBlobs[currentPart][currentIndex] = blob;
+                showMessage("บันทึกเสียงชั่วคราวเรียบร้อยแล้ว", "info");
+                
+                // Allow navigation after recording
+                saveRecordBtn.textContent = 'บันทึก & Next';
+                nextBtn.disabled = false; 
+            };
+        }
+
+        async function uploadData(partNumber) {
+            // Logic จาก Code D
+            const partKey = `part${partNumber}`;
+            if (!currentUserId) { return showMessage("ไม่พบรหัสผู้ใช้งาน กรุณาโหลดหน้าใหม่", "error"); }
+            
+            const currentQuestions = shuffledQuestions;
+            const allRecorded = currentQuestions.every((_, i) => audioBlobs[partKey] && audioBlobs[partKey][i]);
+            if (!allRecorded) { return showMessage("กรุณาอัดเสียงให้ครบทุกข้อก่อนอัปโหลด", "error"); }
+
+            loadingOverlay.style.display = "flex";
+            try {
+                const blobsToUpload = Object.values(audioBlobs[partKey]);
+                const totalSize = blobsToUpload.reduce((sum, blob) => sum + blob.size, 0);
+                let totalUploaded = 0;
+                const uploadPromises = currentQuestions.map(async (q, i) => {
+                    const blob = audioBlobs[partKey][i];
+                    const fileName = `${currentUserId}/${partKey}/q${i+1}_${uuidv4()}.webm`;
+                    
+                    // 1. Upload file to Supabase Storage
+                    const { data: uploadData, error: uploadError } = await supabase.storage
+                        .from('audios') 
+                        .upload(fileName, blob, { upsert: false });
+              
+                    if (uploadError) { throw uploadError; }
+
+                    const { data: { publicUrl } } = supabase.storage.from('audios').getPublicUrl(fileName);
+
+                    // 2. Insert record into Supabase Database
+                    const { error: insertError } = await supabase
+                        .from('submissions') 
+                        .insert([
+                            {
+                                user_id: currentUserId,
+                                // ⚡️ สำคัญ: เพิ่มฟิลด์ name ที่ขาดหายไปในโค้ดเก่าของคุณ
+                                name: inputUserName.value.trim() || `ผู้ใช้งาน ID: ${currentUserId.substring(0, 8)}...`, 
+                                email: `anon_${currentUserId}@roleplay.com`, // Email Placeholder
+                                part_number: partNumber,
+                                question_number: i + 1,
+                                question_text: q,
+                                audio_url: publicUrl,
+                            }
+                        ]);
+                    if (insertError) { throw insertError; }
+
+                    totalUploaded += blob.size;
+                    const overallProgress = (totalUploaded / totalSize) * 100;
+                    uploadProgressBar.style.width = `${overallProgress}%`;
+                    loadingText.textContent = `กำลังอัปโหลดไฟล์ที่ ${i + 1} จาก ${currentQuestions.length}... (${Math.round(overallProgress)}%)`;
+                });
+                
+                await Promise.all(uploadPromises);
+                showMessage(`ส่งไฟล์เสียง Part ${partNumber} เรียบร้อยแล้ว!`, "info");
+                return true;
+            } catch (err) {
+                console.error('เกิดข้อผิดพลาดในการอัปโหลด:', err);
+                // ⚡️ ปรับปรุงการแสดงผล Error
+                const errorMessage = err.message || 'ข้อผิดพลาดไม่ทราบสาเหตุ';
+                showMessage(`เกิดข้อผิดพลาดในการอัปโหลด: ${errorMessage}. ตรวจสอบ Supabase RLS และ Schema!`, "error");
+                return false;
+            } finally {
+                loadingOverlay.style.display = "none";
+            }
+        }
+
+        function checkCompletion() {
+            if (partCompletion.part1 && partCompletion.part2 && partCompletion.part3) {
+                setTimeout(showCertificate, 1500);
+            } else {
+                // หากยังไม่ครบ ให้ออโต้โหลด Part ถัดไป
+                let nextPart = null;
+                if (partCompletion.part1 && !partCompletion.part2) nextPart = 'part2';
+                else if (partCompletion.part1 && partCompletion.part2 && !partCompletion.part3) nextPart = 'part3';
+                if (nextPart) {
+                    loadPart(nextPart);
+                    showMessage(`Part ${nextPart.slice(-1)} ถูกโหลดแล้ว`, 'info');
+                }
+            }
+        }
+
+        function showCertificate() {
+            // Logic จาก Code M
+            document.querySelector('.card-container').style.opacity = '0';
+            document.querySelector('.card-container').style.visibility = 'hidden';
+
+            // ⚡️ ใช้ชื่อที่กรอกแทนรหัส ID สำหรับใบประกาศฯ
+            const finalUserName = inputUserName.value.trim() || `ผู้ใช้งาน ID: ${currentUserId.substring(0, 8)}...`;
+            certificateUserName.textContent = finalUserName;
+            
+            const certificatePage = document.getElementById('certificatePage');
+            certificatePage.classList.add('show');
+            document.title = "ขอแสดงความยินดี! คุณผ่านการทดสอบ";
+        }
+        
+        function initializeUser() {
+            // Logic จาก Code D (ใช้ UUID แทน Login)
+            let userId = localStorage.getItem(USER_ID_KEY);
+            if (!userId) {
+                userId = uuidv4();
+                localStorage.setItem(USER_ID_KEY, userId);
+            }
+            
+            currentUserId = userId;
+            // UUID ถูกสร้างและเก็บไว้ใน currentUserId แต่ไม่แสดงผลบนหน้าจอ
+            // userNameDisplay.textContent = currentUserId; 
+
+            // ⚡️ โหลดชื่อที่บันทึกไว้ และเติมลงใน Input
+            const savedName = localStorage.getItem(USER_NAME_KEY);
+            if (savedName) {
+                inputUserName.value = savedName;
+            }
+            
+            // แสดงชื่อ/UUID ในใบประกาศฯ เริ่มต้น (เพื่อป้องกันชื่อว่างเปล่าก่อนทำเสร็จ)
+            document.getElementById('certificateUserName').textContent = savedName || `ผู้ใช้งาน ID: ${currentUserId.substring(0, 8)}...`;
+
+            loadPart(currentPart);
+        }
+        
+        // --- Event Listeners ---
+        document.addEventListener('DOMContentLoaded', initializeUser);
+        startRecordBtn.addEventListener('click', startRecording);
+        stopRecordBtn.addEventListener('click', stopRecording);
+        
+        // ⚡️ Event Listener สำหรับบันทึกชื่อเมื่อมีการแก้ไข
+        inputUserName.addEventListener('input', () => {
+            localStorage.setItem(USER_NAME_KEY, inputUserName.value.trim());
+        });
+
+        // ปุ่ม Save Record จะทำหน้าที่เหมือน Next Question เมื่อมีไฟล์เสียงแล้ว
+        saveRecordBtn.addEventListener('click', nextQuestion);
+        // ปุ่ม Next/Prev (Code M)
+        nextBtn.addEventListener('click', nextQuestion);
+        prevBtn.addEventListener('click', prevQuestion);
+        // ปุ่ม Reset Quiz (Code M)
+        resetQuizBtn.addEventListener('click', () => {
+            localStorage.removeItem(USER_ID_KEY);
+            localStorage.removeItem(USER_NAME_KEY); // ⚡️ ลบชื่อที่บันทึกไว้ด้วย
+            window.location.reload();
+        });
+    </script>
+</body>
+</html>
