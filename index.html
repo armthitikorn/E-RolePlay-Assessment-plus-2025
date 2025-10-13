@@ -96,13 +96,13 @@
 
           if (userData) {
             showMessage('เข้าสู่ระบบสำเร็จ! กำลังนำทาง...', false);
-            setTimeout(() => window.location.href = "E-RolePlay-Assessment-plus.html", 1500);
+            setTimeout(() => window.location.href = "e-roleplay_asessment_plus.html", 1500);
             return;
           }
 
           await supabase.from('users').insert([{ email, full_name: name, department }]);
           showMessage('ลงทะเบียนสำเร็จ! กำลังนำทาง...', false);
-          setTimeout(() => window.location.href = "E-RolePlay-Assessment-plus.html", 1500);
+          setTimeout(() => window.location.href = "e-roleplay_asessment_plus.html", 1500);
 
         } catch (err) {
           console.error(err);
@@ -136,6 +136,7 @@
   </div>
 </body>
 </html>
+
 
 
 
