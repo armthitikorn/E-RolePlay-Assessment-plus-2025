@@ -57,11 +57,12 @@
     }
   </style>
 
-  <script type="module">
+<script type="module">
     import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm';
 
+    // ⚠️ อย่าลืมใส่ URL และ KEY ของคุณเองที่นี่
     const supabaseUrl = 'https://wzwyotzzxycqfwercakh.supabase.co';
-    const supabaseKey = 'YOUR_ANON_KEY';
+    const supabaseKey = 'YOUR_ANON_KEY'; // ใส่ Key จริงของคุณที่นี่
     const supabase = createClient(supabaseUrl, supabaseKey);
 
     function showMessage(text, isError = false) {
@@ -71,10 +72,30 @@
       messageBox.className = isError ? 'alert alert-danger mt-3' : 'alert alert-success mt-3';
     }
 
+    // ฟังก์ชันช่วยบันทึกสถานะและเปลี่ยนหน้า
+    function loginAndRedirect(email) {
+      // 1. บันทึกว่าล็อกอินแล้ว (เปรียบเหมือนการฉีกตั๋วเข้างาน)
+      localStorage.setItem('userEmail', email);
+      localStorage.setItem('isLoggedIn', 'true');
+      
+      showMessage('กำลังเข้าสู่ระบบ... โปรดรอสักครู่', false);
+      
+      // 2. หน่วงเวลาเล็กน้อยเพื่อให้ผู้ใช้เห็นข้อความ แล้วค่อยเปลี่ยนหน้า
+      setTimeout(() => {
+        window.location.href = "e-roleplay.html";
+      }, 1500);
+    }
+
     document.addEventListener('DOMContentLoaded', () => {
+      // ตรวจสอบก่อนว่าเคยล็อกอินไหม ถ้าเคยแล้วให้ไปหน้าถัดไปเลย
+      if (localStorage.getItem('isLoggedIn') === 'true') {
+         window.location.href = "e-roleplay.html";
+         return;
+      }
+
       const form = document.getElementById('registerForm');
       form.addEventListener('submit', async (e) => {
-        e.preventDefault();
+        e.preventDefault(); // ป้องกันไม่ให้หน้าเว็บรีโหลดเอง
 
         const name = document.getElementById('name').value;
         const email = document.getElementById('email').value;
@@ -85,28 +106,38 @@
           return;
         }
 
-        showMessage('กำลังตรวจสอบ...', false);
+        showMessage('กำลังเชื่อมต่อฐานข้อมูล...', false);
 
         try {
-          const { data: userData } = await supabase
+          // ใช้ maybeSingle() แทน single() เพื่อไม่ให้เกิด Error หากไม่เจอ user
+          const { data: existingUser, error: selectError } = await supabase
             .from('users')
             .select('*')
             .eq('email', email)
-            .single();
+            .maybeSingle(); 
 
-          if (userData) {
-            showMessage('เข้าสู่ระบบสำเร็จ! กำลังนำทาง...', false);
-            setTimeout(() => window.location.href = "e-roleplay.html", 1500);
+          if (selectError) throw selectError;
+
+          // กรณีที่ 1: มีผู้ใช้นี้อยู่แล้ว -> ล็อกอินเลย
+          if (existingUser) {
+            showMessage('พบข้อมูลเดิม! กำลังพาคุณไปทำแบบทดสอบ...', false);
+            loginAndRedirect(email);
             return;
           }
 
-          await supabase.from('users').insert([{ email, full_name: name, department }]);
-          showMessage('ลงทะเบียนสำเร็จ! กำลังนำทาง...', false);
-          setTimeout(() => window.location.href = "e-roleplay.html", 1500);
+          // กรณีที่ 2: ไม่พบผู้ใช้ -> ลงทะเบียนใหม่
+          const { error: insertError } = await supabase
+            .from('users')
+            .insert([{ email, full_name: name, department }]);
+
+          if (insertError) throw insertError;
+
+          showMessage('ลงทะเบียนใหม่สำเร็จ! กำลังพาคุณไปทำแบบทดสอบ...', false);
+          loginAndRedirect(email);
 
         } catch (err) {
-          console.error(err);
-          showMessage(`เกิดข้อผิดพลาด: ${err.message}`, true);
+          console.error('Error:', err);
+          showMessage(`เกิดข้อผิดพลาด: ${err.message || err.error_description}`, true);
         }
       });
     });
@@ -136,6 +167,7 @@
   </div>
 </body>
 </html>
+
 
 
 
