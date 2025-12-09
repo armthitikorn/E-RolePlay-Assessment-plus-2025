@@ -81,7 +81,6 @@
     }
 
     document.addEventListener('DOMContentLoaded', () => {
-      // ตรวจสอบว่าล็อกอินค้างไว้หรือไม่
       if (localStorage.getItem('isLoggedIn') === 'true') {
          window.location.href = "e-roleplay.html";
          return;
@@ -91,11 +90,12 @@
       form.addEventListener('submit', async (e) => {
         e.preventDefault();
 
-        const name = document.getElementById('name').value;
-        const email = document.getElementById('email').value;
-        const department = document.getElementById('department').value;
+        // รับค่าจากฟอร์ม
+        const nameValue = document.getElementById('name').value; 
+        const emailValue = document.getElementById('email').value;
+        const departmentValue = document.getElementById('department').value;
 
-        if (!email) {
+        if (!emailValue) {
           showMessage('กรุณากรอกอีเมล', true);
           return;
         }
@@ -103,11 +103,11 @@
         showMessage('กำลังเชื่อมต่อฐานข้อมูล...', false);
 
         try {
-          // ✅ 1. แก้ไข: เปลี่ยนจาก 'users' เป็น 'submissions'
+          // 1. เช็คว่ามีอีเมลนี้หรือยัง
           const { data: existingUser, error: selectError } = await supabase
-            .from('submissions') // <--- แก้ตรงนี้ครับ
+            .from('submissions')
             .select('*')
-            .eq('email', email)
+            .eq('email', emailValue) // ⚠️ ต้องมั่นใจว่าในตารางมีคอลัมน์ชื่อ email นะครับ
             .maybeSingle(); 
 
           if (selectError) {
@@ -116,18 +116,19 @@
 
           if (existingUser) {
             showMessage('พบข้อมูลเดิม! กำลังพาคุณไปทำแบบทดสอบ...', false);
-            loginAndRedirect(email);
+            loginAndRedirect(emailValue);
             return;
           }
 
-          // ✅ 2. แก้ไข: เปลี่ยนจาก 'users' เป็น 'submissions'
+          // 2. ถ้าไม่เจอ ให้เพิ่มข้อมูลใหม่
           const { error: insertError } = await supabase
-            .from('submissions') // <--- แก้ตรงนี้ครับ
+            .from('submissions')
             .insert([
               { 
-                email: email, 
-                full_name: name, // ⚠️ อย่าลืมเช็คว่าในตาราง submissions คอลัมน์ชื่อ full_name หรือ name นะครับ
-                department: department 
+                // ✅ แก้ไขให้ตรงกับชื่อคอลัมน์ในรูปภาพ
+                name: nameValue,         // ในรูปชื่อคอลัมน์คือ name
+                email: emailValue,       // (ตรวจสอบว่ามีคอลัมน์นี้ไหม ถ้าไม่มีให้ลบบรรทัดนี้ออก)
+                department: departmentValue // (ตรวจสอบว่ามีคอลัมน์นี้ไหม ถ้าไม่มีให้ลบบรรทัดนี้ออก)
               }
             ]);
 
@@ -136,7 +137,7 @@
           }
 
           showMessage('ลงทะเบียนใหม่สำเร็จ! กำลังพาคุณไปทำแบบทดสอบ...', false);
-          loginAndRedirect(email);
+          loginAndRedirect(emailValue);
 
         } catch (err) {
           console.error('Error:', err);
@@ -170,4 +171,5 @@
   </div>
 </body>
 </html>
+
 
