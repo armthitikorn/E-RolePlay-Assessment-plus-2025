@@ -57,11 +57,14 @@
     }
   </style>
 
-<script type="module">
-        import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm'
-        const supabaseUrl = 'https://wzwyotzzxycqfwercakh.supabase.co';
-        const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Ind6d3lvdHp6eHljcWZ3ZXJjYWtoIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTcwNTg3MTMsImV4cCI6MjA3MjYzNDcxM30.lgiAf9oBUqsaWGb3u_80wuoKAODQHE_lIBxpGumhrno'; 
-        const supabase = createClient(supabaseUrl, supabaseKey);
+  <script type="module">
+    // ✅ แก้ไข: เปลี่ยนมาใช้ esm.sh เพื่อความเสถียร แก้ปัญหา AuthClient null
+    import { createClient } from 'https://esm.sh/@supabase/supabase-js@2'
+    
+    const supabaseUrl = 'https://wzwyotzzxycqfwercakh.supabase.co';
+    // Key ของคุณ
+    const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Ind6d3lvdHp6eHljcWZ3ZXJjYWtoIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTcwNTg3MTMsImV4cCI6MjA3MjYzNDcxM30.lgiAf9oBUqsaWGb3u_80wuoKAODQHE_lIBxpGumhrno'; 
+    const supabase = createClient(supabaseUrl, supabaseKey);
 
     function showMessage(text, isError = false) {
       const messageBox = document.getElementById('messageBox');
@@ -72,20 +75,19 @@
 
     // ฟังก์ชันช่วยบันทึกสถานะและเปลี่ยนหน้า
     function loginAndRedirect(email) {
-      // 1. บันทึกว่าล็อกอินแล้ว (เปรียบเหมือนการฉีกตั๋วเข้างาน)
       localStorage.setItem('userEmail', email);
       localStorage.setItem('isLoggedIn', 'true');
       
       showMessage('กำลังเข้าสู่ระบบ... โปรดรอสักครู่', false);
       
-      // 2. หน่วงเวลาเล็กน้อยเพื่อให้ผู้ใช้เห็นข้อความ แล้วค่อยเปลี่ยนหน้า
       setTimeout(() => {
+        // ⚠️ ตรวจสอบให้แน่ใจว่าไฟล์นี้มีอยู่จริงในโฟลเดอร์เดียวกัน
         window.location.href = "e-roleplay.html";
       }, 1500);
     }
 
     document.addEventListener('DOMContentLoaded', () => {
-      // ตรวจสอบก่อนว่าเคยล็อกอินไหม ถ้าเคยแล้วให้ไปหน้าถัดไปเลย
+      // ตรวจสอบสถานะการล็อกอิน
       if (localStorage.getItem('isLoggedIn') === 'true') {
          window.location.href = "e-roleplay.html";
          return;
@@ -93,7 +95,7 @@
 
       const form = document.getElementById('registerForm');
       form.addEventListener('submit', async (e) => {
-        e.preventDefault(); // ป้องกันไม่ให้หน้าเว็บรีโหลดเอง
+        e.preventDefault();
 
         const name = document.getElementById('name').value;
         const email = document.getElementById('email').value;
@@ -107,7 +109,6 @@
         showMessage('กำลังเชื่อมต่อฐานข้อมูล...', false);
 
         try {
-          // ใช้ maybeSingle() แทน single() เพื่อไม่ให้เกิด Error หากไม่เจอ user
           const { data: existingUser, error: selectError } = await supabase
             .from('users')
             .select('*')
@@ -116,14 +117,12 @@
 
           if (selectError) throw selectError;
 
-          // กรณีที่ 1: มีผู้ใช้นี้อยู่แล้ว -> ล็อกอินเลย
           if (existingUser) {
             showMessage('พบข้อมูลเดิม! กำลังพาคุณไปทำแบบทดสอบ...', false);
             loginAndRedirect(email);
             return;
           }
 
-          // กรณีที่ 2: ไม่พบผู้ใช้ -> ลงทะเบียนใหม่
           const { error: insertError } = await supabase
             .from('users')
             .insert([{ email, full_name: name, department }]);
@@ -165,6 +164,7 @@
   </div>
 </body>
 </html>
+
 
 
 
