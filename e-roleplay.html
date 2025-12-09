@@ -7,10 +7,9 @@
     
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet" />
     <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css" rel="stylesheet" />
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" integrity="sha512-SnH5WK+bZxgPHs44uWIX+LLJAJ9/2PkPKZ5QiAj6Ta86w+fsb2TkcmfRyVX3pBnMFcV7oQPJkl9QevSCWr3W6A==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" />
     
     <style>
-        /* 1. สไตล์หลักจาก Code M: พื้นหลัง Animation และ Card Structure */
         body {
             margin: 0;
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
@@ -41,7 +40,6 @@
             position: relative;
         }
 
-        /* 2. สไตล์สำหรับ Loading Overlay (จาก Code D) */
         #loadingOverlay {
             position: fixed;
             top: 0;
@@ -50,7 +48,7 @@
             height: 100%;
             background: rgba(0, 0, 0, 0.7);
             color: white;
-            display: none; /* เริ่มต้นซ่อน */
+            display: none;
             justify-content: center;
             align-items: center;
             flex-direction: column;
@@ -64,7 +62,6 @@
             margin-top: 20px;
         }
 
-        /* 3. สไตล์สำหรับ Certificate Page (จาก Code M) */
         #certificatePage {
             position: fixed;
             top: 0;
@@ -72,7 +69,7 @@
             width: 100%;
             height: 100%;
             background: #fff;
-            display: none; /* เริ่มต้นซ่อน */
+            display: none;
             flex-direction: column;
             justify-content: center;
             align-items: center;
@@ -114,12 +111,10 @@
             padding: 0 20px;
         }
 
-        /* 4. สไตล์เพิ่มเติมสำหรับ Progress (จาก Code M) */
         .progress-bar-done {
             background-color: #28a745 !important;
         }
         
-        /* 5. สไตล์สำหรับ Input ชื่อผู้ใช้งาน */
         .user-name-input {
             margin-bottom: 20px;
         }
@@ -132,7 +127,7 @@
             <span class="visually-hidden">Loading...</span>
         </div>
         <h5 id="loadingText" class="mt-3">กำลังเตรียมการอัปโหลด...</h5>
-        <div class="progress" role="progressbar" aria-label="Upload Progress" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100">
+        <div class="progress" role="progressbar">
             <div id="uploadProgressBar" class="progress-bar progress-bar-striped progress-bar-animated" style="width: 0%"></div>
         </div>
     </div>
@@ -187,7 +182,7 @@
             <button id="nextBtn" class="btn btn-primary"><i class="bi bi-arrow-right"></i> ถัดไป</button>
         </div>
         
-        <div class="progress" role="progressbar" aria-label="Progress" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100">
+        <div class="progress" role="progressbar">
             <div id="progressBar" class="progress-bar" style="width: 0%">0%</div>
         </div>
         <small id="progressInfo" class="text-muted mt-2 d-block">คำถามที่ 0 จาก 10 ข้อใน Part นี้</small>
@@ -199,19 +194,15 @@
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     
     <script type="module">
-        // 🚨 หมายเหตุ: หากเปิดไฟล์นี้โดยตรง (file:///) อาจพบข้อผิดพลาด 'Unexpected token import' 
-        // กรุณาเปิดผ่าน Web Server (เช่น GitHub Pages, Live Server ใน VS Code)
-        
-        // --- Supabase Imports & Config (จาก Code D) ---
-        import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm';
-        import { v4 as uuidv4 } from 'https://cdn.jsdelivr.net/npm/uuid@8.3.2/dist/esm-browser/index.js';
+        // ✅ 1. แก้ไข Import Supabase ให้เป็นเวอร์ชันที่เสถียร (esm.sh)
+        import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
+        import { v4 as uuidv4 } from 'https://esm.sh/uuid@9.0.0'; // ใช้ esm.sh ให้เหมือนกันเพื่อความชัวร์
 
-        // **ตั้งค่า Supabase ของคุณ**
         const supabaseUrl = 'https://wzwyotzzxycqfwercakh.supabase.co';
         const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Ind6d3lvdHp6eHljcWZ3ZXJjYWtoIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTcwNTg3MTMsImV4cCI6MjA3MjYzNDcxM30.lgiAf9oBUqsaWGb3u_80wuoKAODQHE_lIBxpGumhrno'; 
         const supabase = createClient(supabaseUrl, supabaseKey);
 
-        // --- Global Variables (ผสม Code M & D) ---
+        // --- Global Variables ---
         let audioBlobs = { part1: {}, part2: {}, part3: {} };
         let mediaRecorder;
         let audioStream;
@@ -219,14 +210,12 @@
         let currentUserId = null; 
         const USER_ID_KEY = 'roleplay_user_id'; 
         const USER_NAME_KEY = 'roleplay_user_name';
-        // ⚡️ Key สำหรับบันทึกชื่อ
 
         let currentPart = 'part1'; 
         let shuffledQuestions = [];
         let currentIndex = 0;
         const totalQuestionsPerPart = 10;
         
-        // ... ข้อมูลคำถาม questions เดิม ...
         const questions = {
             part1: [
                 "ขอโทษครับ/ค่ะ ไม่สนใจต้นสาย", "ไม่สะดวกคุยตอนนี้ครับ/ค่ะ", "ไม่รับสายขายของครับ/ค่ะ", "ไม่สนใจประกันครับ/ค่ะ",
@@ -259,6 +248,7 @@
             ]
         };
         let partCompletion = { part1: false, part2: false, part3: false };
+        
         // --- DOM Elements ---
         const userNameDisplay = document.getElementById("userNameDisplay");
         const loadingOverlay = document.getElementById("loadingOverlay");
@@ -275,17 +265,13 @@
         const saveRecordBtn = document.getElementById('saveRecord');
         const audioPreview = document.getElementById('audioPreview');
         const recordStatus = document.getElementById('recordStatus');
-        // ⚡️ DOM Element สำหรับช่องกรอกชื่อ
         const inputUserName = document.getElementById('inputUserName'); 
-        
         const certificateUserName = document.getElementById('certificateUserName');
         const resetQuizBtn = document.getElementById('resetQuizBtn');
-
 
         // --- Utility Functions ---
 
         function showMessage(text, type = 'info') {
-            // Logic from Code D
             messageBox.textContent = text;
             messageBox.style.display = 'block';
             if (type === 'error') {
@@ -298,7 +284,6 @@
             setTimeout(() => { messageBox.style.display = 'none'; }, 3000);
         }
 
-        // Fisher-Yates Shuffle Algorithm (Code M)
         function shuffle(array) {
             let copy = [...array];
             while (copy.length > totalQuestionsPerPart) {
@@ -307,8 +292,9 @@
             return copy;
         }
 
-        // --- Core Quiz Logic (Code M Style) ---
+        // --- Core Quiz Logic ---
 
+        // ฟังก์ชันนี้แหละครับที่ปุ่ม HTML หาไม่เจอในตอนแรก
         function loadPart(part) {
             if (mediaRecorder && mediaRecorder.state !== "inactive") {
                 showMessage("กรุณากดหยุดบันทึกเสียงก่อนเปลี่ยน Part", "error");
@@ -319,7 +305,6 @@
             currentIndex = 0;
             showQuestion();
             
-            // อัพเดท Active State ของปุ่ม
             document.querySelectorAll('.btn-outline-primary.btn-sm').forEach(btn => {
                 btn.classList.remove('active');
                 if (btn.getAttribute('data-part') === part) {
@@ -327,13 +312,14 @@
                 }
             });
 
-            // Reset UI State
             resetRecordingControls();
             checkQuestionRecorded();
         }
 
+        // ✅ 2. เพิ่มบรรทัดนี้: เปิดเผยฟังก์ชันให้ปุ่ม HTML เรียกใช้ได้
+        window.loadPart = loadPart;
+
         function showQuestion() {
-            // Animation การเปลี่ยนคำถาม (Code M)
             questionText.parentElement.style.opacity = 0;
             setTimeout(() => { 
                 questionText.textContent = `[Part ${currentPart.slice(-1)} - ข้อที่ ${currentIndex + 1}/${shuffledQuestions.length}] ${shuffledQuestions[currentIndex]}`;
@@ -341,7 +327,6 @@
 
                 prevBtn.disabled = currentIndex === 0;
 
-                // ตรวจสอบว่าเป็นคำถามสุดท้ายของ Part หรือไม่ (Code M)
                 if (currentIndex === shuffledQuestions.length - 1) {
                     nextBtn.innerHTML = '<i class="bi bi-check-circle-fill"></i> เสร็จสิ้น Part';
                     nextBtn.classList.remove('btn-primary');
@@ -353,21 +338,18 @@
                 }
                 nextBtn.disabled = false; 
                 
-                // อัพเดท Progress Bar (Code M)
                 const progressValue = Math.round(((currentIndex + 1) / shuffledQuestions.length) * 100);
                 progressBar.style.width = progressValue + '%';
                 progressBar.setAttribute('aria-valuenow', progressValue);
                 progressBar.textContent = progressValue + '%';
                 progressInfo.textContent = `คำถามที่ ${currentIndex + 1} จาก ${shuffledQuestions.length} ข้อใน Part นี้`;
                 progressBar.classList.remove('progress-bar-done');
-                // ตรวจสอบสถานะการบันทึกสำหรับคำถามใหม่
                 resetRecordingControls();
                 checkQuestionRecorded();
             }, 200); 
         }
 
         async function nextQuestion() {
-            // บังคับให้บันทึกเสียงก่อนไปต่อ
             if (!audioBlobs[currentPart][currentIndex]) {
                 showMessage("กรุณาบันทึกไฟล์เสียงสำหรับคำถามนี้ก่อน", "error");
                 return;
@@ -377,15 +359,11 @@
                 currentIndex++;
                 showQuestion();
             } else if (currentIndex === shuffledQuestions.length - 1) {
-                // ถ้าเป็นคำถามสุดท้าย ให้เริ่มกระบวนการอัปโหลด (Code D Logic)
                 const success = await uploadData(parseInt(currentPart.slice(-1)));
                 if (success) {
                     partCompletion[currentPart] = true;
-                    // Animation Progress Bar เมื่อเสร็จสิ้น (Code M)
                     progressBar.classList.add('progress-bar-done');
                     progressBar.textContent = '100% - Part เสร็จสิ้น!';
-                    
-                    // ตรวจสอบว่าทำครบทุก Part หรือยัง
                     checkCompletion();
                     nextBtn.disabled = true;
                     nextBtn.innerHTML = '<i class="bi bi-check-circle-fill"></i> Part เสร็จสิ้น!';
@@ -401,7 +379,7 @@
             }
         }
 
-        // --- Recording and Upload Logic (Code D Core) ---
+        // --- Recording and Upload Logic ---
 
         function resetRecordingControls() {
             startRecordBtn.disabled = false;
@@ -425,10 +403,10 @@
                 recordStatus.innerHTML = `<i class="bi bi-check-circle-fill text-success me-1"></i> บันทึกแล้ว: ${fileSizeKB} KB.`;
                 saveRecordBtn.textContent = 'แก้ไข & Next';
                 saveRecordBtn.disabled = false;
-                nextBtn.disabled = false; // สามารถไปต่อได้ทันทีถ้ามีบันทึกแล้ว
+                nextBtn.disabled = false; 
             } else {
                 saveRecordBtn.textContent = 'บันทึก & Next';
-                nextBtn.disabled = true; // ต้องบันทึกก่อนถึงจะไปต่อได้
+                nextBtn.disabled = true;
             }
         }
 
@@ -468,7 +446,6 @@
                 audioStream.getTracks().forEach(track => track.stop());
             }
             
-            // รอให้ onstop ทำงานก่อน
             mediaRecorder.onstop = () => {
                 const blob = new Blob(currentAudioChunk, { type: 'audio/webm' });
                 const url = URL.createObjectURL(blob);
@@ -484,18 +461,15 @@
                 startRecordBtn.classList.remove('btn-secondary');
                 startRecordBtn.classList.add('btn-danger');
 
-                // Save to audioBlobs immediately upon successful stop
                 audioBlobs[currentPart][currentIndex] = blob;
                 showMessage("บันทึกเสียงชั่วคราวเรียบร้อยแล้ว", "info");
                 
-                // Allow navigation after recording
                 saveRecordBtn.textContent = 'บันทึก & Next';
                 nextBtn.disabled = false; 
             };
         }
 
         async function uploadData(partNumber) {
-            // Logic จาก Code D
             const partKey = `part${partNumber}`;
             if (!currentUserId) { return showMessage("ไม่พบรหัสผู้ใช้งาน กรุณาโหลดหน้าใหม่", "error"); }
             
@@ -513,29 +487,23 @@
                     const blob = audioBlobs[partKey][i];
                     const fileName = `${currentUserId}/${partKey}/q${i+1}_${uuidv4()}.webm`;
                     
-                    // 1. Upload file to Supabase Storage
-                    // 🌟🌟🌟 ส่วนที่แก้ไข: เปลี่ยนจาก .from('audios') เป็น .from('responses') 🌟🌟🌟
                     const { data: uploadData, error: uploadError } = await supabase.storage
-                        .from('responses') // <<< แก้ไขแล้ว
+                        .from('responses') 
                         .upload(fileName, blob, { upsert: false });
               
-    
                     if (uploadError) { throw uploadError; }
 
-                    // 🌟🌟🌟 ส่วนที่แก้ไข: เปลี่ยนจาก .from('audios') เป็น .from('responses') เพื่อดึง publicUrl 🌟🌟🌟
-                    const { data: { publicUrl } } = supabase.storage.from('responses').getPublicUrl(fileName); // <<< แก้ไขแล้ว
+                    const { data: { publicUrl } } = supabase.storage.from('responses').getPublicUrl(fileName);
 
-                    // 2. Insert record into Supabase Database
+                    // ✅ 3. แก้ไขจุด Insert ให้ตรงกับชื่อคอลัมน์ใน Database (name)
                     const { error: insertError } 
                         = await supabase
                         .from('submissions') 
                         .insert([
                             {
                                 user_id: currentUserId,
-                                // ⚡️ สำคัญ: เพิ่มฟิลด์ name ที่ขาดหายไปในโค้ดเก่าของคุณ
-                                name: inputUserName.value.trim() ||
-                                    `ผู้ใช้งาน ID: ${currentUserId.substring(0, 8)}...`, 
-                                email: `anon_${currentUserId}@roleplay.com`, // Email Placeholder
+                                name: inputUserName.value.trim() || `ผู้ใช้งาน ID: ${currentUserId.substring(0, 8)}...`, 
+                                email: `anon_${currentUserId}@roleplay.com`, 
                                 part_number: partNumber,
                                 question_number: i + 1,
                                 question_text: q,
@@ -555,9 +523,7 @@
                 return true;
             } catch (err) {
                 console.error('เกิดข้อผิดพลาดในการอัปโหลด:', err);
-                // ⚡️ ปรับปรุงการแสดงผล Error
-                const errorMessage = err.message ||
-                    'ข้อผิดพลาดไม่ทราบสาเหตุ';
+                const errorMessage = err.message || 'ข้อผิดพลาดไม่ทราบสาเหตุ';
                 showMessage(`เกิดข้อผิดพลาดในการอัปโหลด: ${errorMessage}. ตรวจสอบ Supabase RLS และ Schema!`, "error");
                 return false;
             } finally {
@@ -569,7 +535,6 @@
             if (partCompletion.part1 && partCompletion.part2 && partCompletion.part3) {
                 setTimeout(showCertificate, 1500);
             } else {
-                // หากยังไม่ครบ ให้ออโต้โหลด Part ถัดไป
                 let nextPart = null;
                 if (partCompletion.part1 && !partCompletion.part2) nextPart = 'part2';
                 else if (partCompletion.part1 && partCompletion.part2 && !partCompletion.part3) nextPart = 'part3';
@@ -581,11 +546,9 @@
         }
 
         function showCertificate() {
-            // Logic จาก Code M
             document.querySelector('.card-container').style.opacity = '0';
             document.querySelector('.card-container').style.visibility = 'hidden';
 
-            // ⚡️ ใช้ชื่อที่กรอกแทนรหัส ID สำหรับใบประกาศฯ
             const finalUserName = inputUserName.value.trim() ||
                 `ผู้ใช้งาน ID: ${currentUserId.substring(0, 8)}...`;
             certificateUserName.textContent = finalUserName;
@@ -596,49 +559,47 @@
         }
         
         function initializeUser() {
-            // Logic จาก Code D (ใช้ UUID แทน Login)
+            // ดึงชื่อที่เก็บไว้ตอนหน้าแรก (จาก index.html ที่บันทึกลง localStorage)
+            // เช็คว่ามี userEmail เก็บไว้ไหม (จากหน้า index.html)
+            const userEmail = localStorage.getItem('userEmail');
+            
             let userId = localStorage.getItem(USER_ID_KEY);
             if (!userId) {
                 userId = uuidv4();
                 localStorage.setItem(USER_ID_KEY, userId);
             }
-            
             currentUserId = userId;
-            // UUID ถูกสร้างและเก็บไว้ใน currentUserId แต่ไม่แสดงผลบนหน้าจอ
-            // userNameDisplay.textContent = currentUserId;
-            // ⚡️ โหลดชื่อที่บันทึกไว้ และเติมลงใน Input
+
+            // พยายามดึงชื่อมาใส่
             const savedName = localStorage.getItem(USER_NAME_KEY);
             if (savedName) {
                 inputUserName.value = savedName;
             }
             
-            // แสดงชื่อ/UUID ในใบประกาศฯ เริ่มต้น (เพื่อป้องกันชื่อว่างเปล่าก่อนทำเสร็จ)
             document.getElementById('certificateUserName').textContent = savedName ||
                 `ผู้ใช้งาน ID: ${currentUserId.substring(0, 8)}...`;
 
             loadPart(currentPart);
         }
         
-        // --- Event Listeners ---
         document.addEventListener('DOMContentLoaded', initializeUser);
         startRecordBtn.addEventListener('click', startRecording);
         stopRecordBtn.addEventListener('click', stopRecording);
         
-        // ⚡️ Event Listener สำหรับบันทึกชื่อเมื่อมีการแก้ไข
         inputUserName.addEventListener('input', () => {
             localStorage.setItem(USER_NAME_KEY, inputUserName.value.trim());
         });
 
-        // ปุ่ม Save Record จะทำหน้าที่เหมือน Next Question เมื่อมีไฟล์เสียงแล้ว
         saveRecordBtn.addEventListener('click', nextQuestion);
         nextBtn.addEventListener('click', nextQuestion);
         prevBtn.addEventListener('click', prevQuestion);
 
-        // ปุ่ม Reset Quiz (Code M)
         resetQuizBtn.addEventListener('click', () => {
             localStorage.removeItem(USER_ID_KEY);
-            localStorage.removeItem(USER_NAME_KEY); // ⚡️ ลบชื่อที่บันทึกไว้ด้วย
-            window.location.reload();
+            localStorage.removeItem(USER_NAME_KEY);
+            localStorage.removeItem('isLoggedIn'); // ล้างสถานะล็อกอินด้วย
+            localStorage.removeItem('userEmail');
+            window.location.href = 'index.html'; // กลับไปหน้าแรก
         });
     </script>
 </body>
